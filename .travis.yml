@@ -1,0 +1,26 @@
+language: cpp
+dist: trusty
+
+env:
+  global:
+    # Encrypted $COVERALLS_TOKEN
+    - secure: "SisqY3ibpmfL9YPQ//7IQ+B/zVuwtw+ktFC/NisHeggYFtMNved8Yv6P3lmlA9bxSx4pyXkiyIPqZWBRWami7FcnHRhAUMrHfEyoaqjrMmjyG/DDJrmi8qc6SogmYfQ0O+j7H2+Pd5pETWGKbrHq5FHiL+guT4ERR0ubN5ZGiNzBqemXDHzCLNYG/5yuQbxwq+50lkmzEv0Wb3Vb3Sxlrt5j0FWI905m8NA9eEE9hLQl1tBJqsUvOIrEJW7bXgD16j9PEsN96rXU+JV9x2JVNEI6zz9DEXX+hVUPbHmqrtyBsfxTXGBEJFiHEvsnSkjJ4zXmGGO165lAnsua9XcYVIGNSVzBE2/141NhxJQq4dyfqG3AwjQSC0pudLQ+OgaAwx+qyBlPZ2idotn978DwQQ44CdcHJQE3m3TeDD37VvnVYKYELC7RTmDyenneyCXU7DJaf7bKuSQ85keOTjA3nbSl1og4WBuLxVm4+rhga+T9xmt87FOF+ifUljVKvXz8g2WRU76jE+kvNV8ssNEHQxmHGA6dsbefIakmkWp97I7jafpDAaIE74yadWY6Mq+ySCPzcJP6BlWW4vomqtyMP925qW2V428t185RdZCpE9U+CL+5BiWT35AmBEbETPHIregVfi8BwqiyeFferyluG8Yjwlag5Mb+tbnRH6uWgKI="
+
+# Install dependencies
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -y google-mock lcov
+  - gem install coveralls-lcov
+
+# Run cmake to prepare build
+before_script:  
+  - mkdir build
+  - cd build
+  - cmake ..
+
+# Build and run tests/generate coverage
+script: make && make coverage
+
+# Submit coverage report to coveralls
+after_success:
+  - coveralls-lcov --repo-token=${COVERALLS_TOKEN} final.coverage
