@@ -11,9 +11,25 @@ configure_file(
 	${PROJECT_BINARY_DIR}/include/version.h
 )
 
-include_directories(${PROJECT_BINARY_DIR}/include)
+include_directories(
+	${PROJECT_SOURCE_DIR}/include
+	${PROJECT_BINARY_DIR}/include
+)
+
+set(OVERPASS_HEADERS
+	${PROJECT_SOURCE_DIR}/include/udp_packet.h
+)
+
+set(OVERPASS_SOURCES
+	${PROJECT_SOURCE_DIR}/src/udp_packet.cpp
+)
 
 add_definitions("-std=c++11 -Wall -Wextra")
+
+add_library(overpass
+	${OVERPASS_HEADERS}
+	${OVERPASS_SOURCES}
+)
 
 set(BUILD_TESTS true CACHE BOOL "Whether or not to build the tests")
 if(BUILD_TESTS)
