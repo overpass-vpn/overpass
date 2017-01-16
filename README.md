@@ -26,3 +26,7 @@ Run tests with:
 Run tests and display coverage results with:
 
     $ make coverage
+
+Generate an HTML coverage report in build/coverage-html/index.html with:
+
+    $ make coverage-html
