@@ -16,10 +16,10 @@ before_install:
 before_script:  
   - mkdir build
   - cd build
-  - cmake ..
+  - cmake .. -DGTEST_INCLUDE_DIRS=/usr/src/gmock/gtest/include
 
 # Build and run tests/generate coverage
-script: make && make coverage
+script: make && make test
 
 # Submit coverage report to coveralls
 after_success:
