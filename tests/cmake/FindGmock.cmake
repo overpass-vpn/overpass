@@ -1,6 +1,6 @@
 set(GMOCK_SOURCE_DIR "/usr/src/gmock" CACHE PATH "gmock source directory")
 set(GMOCK_INCLUDE_DIRS "/usr/include/gmock" CACHE PATH "gmock source include directory")
-set(GTEST_INCLUDE_DIRS "${GMOCK_SOURCE_DIR}/gtest/include" CACHE PATH "gtest source include directory")
+set(GTEST_INCLUDE_DIRS "/usr/include/gtest" CACHE PATH "gtest source include directory")
 
 if(NOT TARGET gmock)
 	add_subdirectory(${GMOCK_SOURCE_DIR} "${CMAKE_CURRENT_BINARY_DIR}/gmock")
