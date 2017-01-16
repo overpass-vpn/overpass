@@ -9,38 +9,41 @@ include_directories(
 find_package(Lcov)
 if(LCOV_FOUND)
 	set(INITIAL_COVERAGE_FILE ${PROJECT_BINARY_DIR}/initial.coverage)
+	set(TESTED_COVERAGE_FILE ${PROJECT_BINARY_DIR}/tested.coverage)
+	set(FINAL_COVERAGE_FILE ${PROJECT_BINARY_DIR}/final.coverage)
 
-	# Generate the initial coverage (so we can get uncovered files)
-	add_custom_command(COMMENT "Generating initial coverage..."
+	add_custom_target(initialize-coverage
+		COMMENT "Initializing coverage..."
 		WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-		OUTPUT ${INITIAL_COVERAGE_FILE}
+
+		# Remove .gcda files from previous testing runs
+		COMMAND ${LCOV} -d . -z -q
+
+		# Generate initial coverage (so we can get uncovered files)
 		COMMAND ${LCOV} -q -c -i -d . -o ${INITIAL_COVERAGE_FILE}
 	)
 
-	# Generate the tested coverage (so we get real coverage)
-	add_custom_command(COMMENT "Generating tested coverage..."
+   add_custom_target(finalize-coverage
+		COMMENT "Calculating final coverage..."
 		WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-		OUTPUT ${PROJECT_BINARY_DIR}/tested.coverage
-		COMMAND ${LCOV} -q -c -d . -o tested.coverage
-		DEPENDS test
+
+		# Generate coverage now that tests have run
+		COMMAND ${LCOV} -q -c -d . -o ${TESTED_COVERAGE_FILE}
+
+		# Combine and filter the initial and tested coverage reports
+		COMMAND ${LCOV} -q -a ${INITIAL_COVERAGE_FILE} -a ${TESTED_COVERAGE_FILE} -o total.coverage
+		COMMAND ${LCOV} -q -r total.coverage 'tests/*' '/usr/*' -o ${FINAL_COVERAGE_FILE}
+
+		DEPENDS run-tests
 	)
 
-	# Merge the initial and tested coverage and filter the results
-	add_custom_command(COMMENT "Generating final coverage..."
-		WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-		OUTPUT ${PROJECT_BINARY_DIR}/final.coverage
-		COMMAND ${LCOV} -q -a initial.coverage -a tested.coverage -o total.coverage
-		COMMAND ${LCOV} -q -r total.coverage 'tests/*' '/usr/*' -o final.coverage
-		DEPENDS ${PROJECT_BINARY_DIR}/initial.coverage ${PROJECT_BINARY_DIR}/tested.coverage
-	)
-
-	# Display the final coverage results
+   # Display the final coverage results
 	add_custom_target(coverage
 		COMMENT "Parsing final coverage report..."
 		WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-		COMMAND ${LCOV} --summary final.coverage
-		COMMAND ${LCOV} --list final.coverage
-		DEPENDS ${PROJECT_BINARY_DIR}/final.coverage
+		COMMAND ${LCOV} --summary ${FINAL_COVERAGE_FILE}
+		COMMAND ${LCOV} --list ${FINAL_COVERAGE_FILE}
+		DEPENDS finalize-coverage
 	)
 
 	find_package(Genhtml)
@@ -49,21 +52,28 @@ if(LCOV_FOUND)
 		add_custom_target(coverage-html
 			COMMENT "Generating HTML coverage report..."
 			WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-			COMMAND ${GENHTML} --legend --show-details -t "${PROJECT_NAME} test coverage" -o coverage-html ${PROJECT_BINARY_DIR}/final.coverage
-			DEPENDS ${PROJECT_BINARY_DIR}/final.coverage
+			COMMAND ${GENHTML} --legend --show-details -t "${PROJECT_NAME} test coverage" -o coverage-html ${FINAL_COVERAGE_FILE}
+			DEPENDS coverage
 		)
 	else()
 		message(WARNING "genhtml not found: HTML coverage report not available.")
+		add_custom_target(coverage-html DEPENDS coverage)
 	endif()
 else()
 	message(WARNING "lcov not found: coverage report not available.")
+	add_custom_target(initialize-coverage)
+	add_custom_target(coverage-html DEPENDS run-tests)
 endif()
 
 # Actually run tests. Add any new test executables as new COMMANDS here.
-add_custom_target(test
+add_custom_target(run-tests
 	COMMENT "Running tests..."
 	COMMAND unit-tests
-	DEPENDS ${INITIAL_COVERAGE_FILE}
+	DEPENDS initialize-coverage
+)
+
+add_custom_target(test
+	DEPENDS coverage-html
 )
 
 add_subdirectory(unit)
