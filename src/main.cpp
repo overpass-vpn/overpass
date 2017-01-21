@@ -3,6 +3,7 @@
 #include <boost/program_options.hpp>
 
 #include "version.h"
+#include "virtual_interface.h"
 
 void parseParameters(
       int argc, char *argv[],
@@ -47,6 +48,22 @@ int main(int argc, char *argv[])
 		std::cout << "Overpass v" << Overpass::version() << std::endl;
 		return 0;
 	}
+
+	std::string interfaceName = "ovp%d";
+	int interfaceFileDescriptor;
+	if (!Overpass::createVirtualInterface(interfaceName, interfaceFileDescriptor))
+	{
+		std::cerr << "Unable to create virtual interface." << std::endl;
+		return 1;
+	}
+
+	if (!Overpass::assignDeviceAddress(interfaceName, "11.11.11.1", "255.255.255.0"))
+	{
+		std::cerr << "Unable to assign address." << std::endl;
+		return 1;
+	}
+
+	while(true);
 
 	return 0;
 }
