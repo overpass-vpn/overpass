@@ -11,17 +11,26 @@ configure_file(
 	${PROJECT_BINARY_DIR}/include/version.h
 )
 
+# Overpass uses boost for parsing command-line parameters.
+find_package(Boost REQUIRED COMPONENTS
+	program_options
+)
+
+# Overpass uses libtins for packet processing.
+find_package(libtins REQUIRED)
+
 include_directories(
 	${PROJECT_SOURCE_DIR}/include
 	${PROJECT_BINARY_DIR}/include
+	${Boost_INCLUDE_DIRS}
+	${LIBTINS_INCLUDE_DIRS}
 )
 
 set(OVERPASS_HEADERS
-	${PROJECT_SOURCE_DIR}/include/udp_packet.h
 )
 
 set(OVERPASS_SOURCES
-	${PROJECT_SOURCE_DIR}/src/udp_packet.cpp
+	${PROJECT_SOURCE_DIR}/src/version.cpp
 )
 
 add_definitions("-std=c++11 -Wall -Wextra")
@@ -29,6 +38,19 @@ add_definitions("-std=c++11 -Wall -Wextra")
 add_library(overpass
 	${OVERPASS_HEADERS}
 	${OVERPASS_SOURCES}
+)
+
+target_link_libraries(overpass
+	${LIBTINS_LIBRARIES}
+)
+
+add_executable(overpassd
+	${PROJECT_SOURCE_DIR}/src/main.cpp
+)
+
+target_link_libraries(overpassd
+	overpass
+	${Boost_LIBRARIES}
 )
 
 set(BUILD_TESTS true CACHE BOOL "Whether or not to build the tests")
