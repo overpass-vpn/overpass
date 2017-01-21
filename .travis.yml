@@ -1,6 +1,15 @@
 language: cpp
 dist: trusty
 
+addons:
+  apt:
+    packages:
+      - cmake
+      - google-mock
+      - lcov
+      - libpcap-dev
+      - libboost-program-options-dev
+
 env:
   global:
     # Encrypted $COVERALLS_TOKEN
@@ -8,9 +17,7 @@ env:
 
 # Install dependencies
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -y google-mock lcov
-  - gem install coveralls-lcov
+  - .travis/install_dependencies
 
 # Run cmake to prepare build
 before_script:  
