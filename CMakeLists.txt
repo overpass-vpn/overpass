@@ -27,10 +27,12 @@ include_directories(
 )
 
 set(OVERPASS_HEADERS
+	${PROJECT_SOURCE_DIR}/include/virtual_interface.h
 )
 
 set(OVERPASS_SOURCES
 	${PROJECT_SOURCE_DIR}/src/version.cpp
+	${PROJECT_SOURCE_DIR}/src/virtual_interface_implementations/linux.cpp
 )
 
 add_definitions("-std=c++11 -Wall -Wextra")
