@@ -9,6 +9,7 @@ addons:
       - lcov
       - libpcap-dev
       - libboost-program-options-dev
+      - libboost-system-dev
 
 env:
   global:
