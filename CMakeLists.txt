@@ -14,6 +14,7 @@ configure_file(
 # Overpass uses boost for parsing command-line parameters.
 find_package(Boost REQUIRED COMPONENTS
 	program_options
+	system
 )
 
 # Overpass uses libtins for packet processing.
@@ -27,6 +28,8 @@ include_directories(
 )
 
 set(OVERPASS_HEADERS
+	${PROJECT_SOURCE_DIR}/include/stream_server.h
+	${PROJECT_SOURCE_DIR}/include/types.h
 	${PROJECT_SOURCE_DIR}/include/virtual_interface.h
 )
 
