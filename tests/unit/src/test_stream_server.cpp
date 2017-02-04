@@ -7,7 +7,6 @@
 
 #include <boost/asio/buffer.hpp>
 #include <boost/system/error_code.hpp>
-#include <boost/asio/posix/stream_descriptor.hpp>
 
 #include "stream_server.h"
 
@@ -68,7 +67,9 @@ class FakeStreamDescriptorReadError : public FakeStreamDescriptor
 		         boost::system::error_code, std::size_t)> callback)
 		{
 			m_ioService->post([callback](){
-				callback(boost::system::error_code(), 0);
+				using boost::system::errc::make_error_code;
+				callback(make_error_code(
+				            boost::system::errc::operation_canceled), 0);
 			});
 		}
 };
@@ -87,9 +88,7 @@ class FakeStreamDescriptorReadNothing : public FakeStreamDescriptor
 		         boost::system::error_code, std::size_t)> callback)
 		{
 			m_ioService->post([callback](){
-				using boost::system::errc::make_error_code;
-				callback(make_error_code(
-				            boost::system::errc::operation_canceled), 0);
+				callback(boost::system::error_code(), 0);
 			});
 		}
 };
