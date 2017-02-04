@@ -32,7 +32,7 @@ if(LCOV_FOUND)
 
 		# Combine and filter the initial and tested coverage reports
 		COMMAND ${LCOV} -q -a ${INITIAL_COVERAGE_FILE} -a ${TESTED_COVERAGE_FILE} -o total.coverage
-		COMMAND ${LCOV} -q -r total.coverage 'tests/*' '/usr/*' -o ${FINAL_COVERAGE_FILE}
+		COMMAND ${LCOV} -q -r total.coverage 'tests/*' '/usr/*' '*libtins*' -o ${FINAL_COVERAGE_FILE}
 
 		DEPENDS run-tests
 	)

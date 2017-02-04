@@ -30,12 +30,14 @@ include_directories(
 set(OVERPASS_HEADERS
 	${PROJECT_SOURCE_DIR}/include/datagram_server.h
 	${PROJECT_SOURCE_DIR}/include/internal/datagram_server_private.h
+	${PROJECT_SOURCE_DIR}/include/router.h
 	${PROJECT_SOURCE_DIR}/include/stream_server.h
 	${PROJECT_SOURCE_DIR}/include/types.h
 	${PROJECT_SOURCE_DIR}/include/virtual_interface.h
 )
 
 set(OVERPASS_SOURCES
+	${PROJECT_SOURCE_DIR}/src/router.cpp
 	${PROJECT_SOURCE_DIR}/src/version.cpp
 	${PROJECT_SOURCE_DIR}/src/virtual_interface_implementations/linux.cpp
 )
