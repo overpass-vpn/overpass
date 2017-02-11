@@ -73,7 +73,9 @@ namespace Overpass
 			 */
 			void write(const Overpass::SharedBuffer &buffer) const
 			{
-				boost::asio::async_write(m_socket,
+				// Using a raw pointer to the socket, but since `this` is
+				// shared_from_this it's guaranteed to stay valid.
+				boost::asio::async_write(*m_socket,
 				                         boost::asio::buffer(*buffer),
 				                         std::bind(&StreamServer::handleWrite,
 				                                   this->shared_from_this(),

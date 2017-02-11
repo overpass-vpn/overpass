@@ -14,6 +14,18 @@ namespace Tins
 
 namespace Overpass
 {
+	class RoutingException : public Exception
+	{
+		public:
+			RoutingException(const std::string &what);
+	};
+
+	class UnknownClientException : public RoutingException
+	{
+		public:
+			UnknownClientException(const boost::asio::ip::address &address);
+	};
+
 	/*!
 	 * \brief The Router class shuffles packets between the external and virtual
 	 *        interfaces.
@@ -37,8 +49,12 @@ namespace Overpass
 			 * \param[in] virtualSender
 			 * Function to call in order to send a packet over the virtual
 			 * interface.
+			 *
+			 * \param[in] overpassPort
+			 * Port on which Overpass clients should be listening.
 			 */
-			Router(ExternalSender externalSender, VirtualSender virtualSender);
+			Router(ExternalSender externalSender, VirtualSender virtualSender,
+			       std::uint16_t overpassPort);
 
 			/*!
 			 * \brief Add a known client, mapping Overpass address to external
@@ -80,6 +96,8 @@ namespace Overpass
 			typedef std::map<boost::asio::ip::address, boost::asio::ip::address>
 			ClientMap;
 			ClientMap m_knownClients;
+
+			std::uint16_t m_overpassPort;
 	};
 }
 

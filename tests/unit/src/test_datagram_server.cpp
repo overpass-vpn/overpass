@@ -14,8 +14,6 @@
 class FakeDatagramSocket
 {
 	public:
-		typedef std::string endpoint;
-
 		FakeDatagramSocket(const Overpass::SharedIoService &ioService) :
 		   m_ioService(ioService)
 		{
@@ -23,6 +21,13 @@ class FakeDatagramSocket
 
 	protected:
 		Overpass::SharedIoService m_ioService;
+};
+
+class FakeDatagram
+{
+	public:
+		typedef std::string endpoint;
+		typedef FakeDatagramSocket socket;
 };
 
 class FakeDatagramSocketReceiveSuccess : public FakeDatagramSocket
@@ -52,6 +57,13 @@ class FakeDatagramSocketReceiveSuccess : public FakeDatagramSocket
 				callback(boost::system::error_code(), 1);
 			});
 		}
+};
+
+class FakeDatagramReceiveSuccess
+{
+	public:
+		typedef std::string endpoint;
+		typedef FakeDatagramSocketReceiveSuccess socket;
 };
 
 class FakeDatagramSocketReceiveError : public FakeDatagramSocket
@@ -85,6 +97,13 @@ class FakeDatagramSocketReceiveError : public FakeDatagramSocket
 		}
 };
 
+class FakeDatagramReceiveError
+{
+	public:
+		typedef std::string endpoint;
+		typedef FakeDatagramSocketReceiveError socket;
+};
+
 class FakeDatagramSocketReceiveNothing : public FakeDatagramSocket
 {
 	public:
@@ -115,6 +134,13 @@ class FakeDatagramSocketReceiveNothing : public FakeDatagramSocket
 		}
 };
 
+class FakeDatagramReceiveNothing
+{
+	public:
+		typedef std::string endpoint;
+		typedef FakeDatagramSocketReceiveNothing socket;
+};
+
 TEST(DatagramServer, ReadCallback)
 {
 	Overpass::SharedIoService ioService(new boost::asio::io_service);
@@ -136,7 +162,7 @@ TEST(DatagramServer, ReadCallback)
 	std::unique_ptr<FakeDatagramSocketReceiveSuccess> socket(
 	         new FakeDatagramSocketReceiveSuccess(ioService));
 
-	auto server = std::make_shared<Overpass::DatagramServer<FakeDatagramSocketReceiveSuccess>>(
+	auto server = std::make_shared<Overpass::DatagramServer<FakeDatagramReceiveSuccess>>(
 	                 ioService, std::move(socket), callback);
 
 	std::thread thread([&ioService](){ioService->run();});
@@ -168,7 +194,7 @@ TEST(DatagramServer, ReadError)
 	std::unique_ptr<FakeDatagramSocketReceiveError> socket(
 	         new FakeDatagramSocketReceiveError(ioService));
 
-	auto server = std::make_shared<Overpass::DatagramServer<FakeDatagramSocketReceiveError>>(
+	auto server = std::make_shared<Overpass::DatagramServer<FakeDatagramReceiveError>>(
 	                 ioService, std::move(socket), callback);
 
 	std::thread thread([&ioService](){ioService->run();});
@@ -200,7 +226,7 @@ TEST(DatagramServer, ReadNothing)
 	std::unique_ptr<FakeDatagramSocketReceiveNothing> socket(
 	         new FakeDatagramSocketReceiveNothing(ioService));
 
-	auto server = std::make_shared<Overpass::DatagramServer<FakeDatagramSocketReceiveNothing>>(
+	auto server = std::make_shared<Overpass::DatagramServer<FakeDatagramReceiveNothing>>(
 	                 ioService, std::move(socket), callback);
 
 	std::thread thread([&ioService](){ioService->run();});

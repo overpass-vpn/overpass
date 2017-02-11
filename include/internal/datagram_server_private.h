@@ -3,6 +3,10 @@
 
 #include <iostream>
 
+#include <boost/asio/buffer.hpp>
+#include <boost/asio/io_service.hpp>
+#include <boost/system/error_code.hpp>
+
 namespace Overpass
 {
 	namespace internal
@@ -36,7 +40,7 @@ namespace Overpass
 				 * How large of a buffer size to support (this is the packet size).
 				 */
 				DatagramServerPrivate(const SharedIoService &ioService,
-				                      std::unique_ptr<T> socket,
+				                      std::unique_ptr<typename T::socket> socket,
 				                      ReadCallback callback,
 				                      std::size_t bufferSize) :
 				   m_ioService(ioService),
@@ -127,7 +131,7 @@ namespace Overpass
 			private:
 				SharedIoService m_ioService;
 				ReadCallback m_callback;
-				std::unique_ptr<T> m_socket;
+				std::unique_ptr<typename T::socket> m_socket;
 				std::size_t m_bufferSize;
 		};
 	}
