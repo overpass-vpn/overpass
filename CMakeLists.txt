@@ -48,7 +48,7 @@ set(OVERPASS_SOURCES
 
 add_definitions("-std=c++11 -Wall -Wextra")
 
-add_library(overpass
+add_library(overpass SHARED
 	${OVERPASS_HEADERS}
 	${OVERPASS_SOURCES}
 )
@@ -65,6 +65,11 @@ target_link_libraries(overpassd
 	overpass
 	${Boost_LIBRARIES}
 	pthread
+)
+
+install(TARGETS overpass overpassd
+	LIBRARY DESTINATION lib
+	RUNTIME DESTINATION bin
 )
 
 set(BUILD_TESTS true CACHE BOOL "Whether or not to build the tests")

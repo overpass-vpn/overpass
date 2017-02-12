@@ -1,0 +1,25 @@
+name: overpass
+version: 0.1.0
+grade: stable
+confinement: strict
+summary: Overpass VPN
+description: Initial Overpass VPN release. It doesn't do much yet.
+
+apps:
+  overpassd:
+    command: overpassd
+    plugs: [network, network-bind, network-control]
+
+parts:
+  libtins:
+    plugin: cmake
+    source: https://github.com/mfontanini/libtins/archive/v3.4.tar.gz
+    configflags: [-DLIBTINS_ENABLE_CXX11=1]
+    build-packages: [g++, libpcap-dev]
+
+  overpass:
+    plugin: cmake
+    source: .
+    configflags: [-DBUILD_TESTS=Off]
+    build-packages: [g++, libboost-program-options-dev, libboost-system-dev]
+    after: [libtins]
