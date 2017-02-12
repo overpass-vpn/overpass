@@ -33,7 +33,7 @@ namespace Overpass
 			 * How large of a buffer size to support (this is the packet size).
 			 */
 			DatagramServer(const SharedIoService &ioService,
-			               std::unique_ptr<T> socket, ReadCallback callback,
+			               std::unique_ptr<typename T::socket> socket, ReadCallback callback,
 			               std::size_t bufferSize = 1500) :
 			   m_data(new internal::DatagramServerPrivate<T>(
 			             ioService, std::move(socket), callback, bufferSize))

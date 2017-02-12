@@ -15,7 +15,7 @@ TEST(Router, FromExternal)
 	uint16_t sourcePort = 1001;
 
 	auto externalSender = [&](const boost::asio::ip::udp::endpoint&,
-	                    const Overpass::SharedBuffer&)
+	                      const Overpass::SharedBuffer&)
 	{
 		FAIL() << "Router unexpectedly sent data to the external interface";
 	};
@@ -40,7 +40,7 @@ TEST(Router, FromExternal)
 		EXPECT_EQ("test-packet", payloadString);
 	};
 
-	Overpass::Router router(externalSender, virtualSender);
+	Overpass::Router router(externalSender, virtualSender, 1234);
 
 	Tins::IP packet = Tins::IP("11.11.11.2") /
 	                  Tins::UDP(destinationPort, sourcePort) /
@@ -67,7 +67,7 @@ TEST(Router, FromVirtual)
 
 	bool externalSenderCalled = false;
 	auto externalSender = [&](const boost::asio::ip::udp::endpoint &destination,
-	                    const Overpass::SharedBuffer &buffer)
+	                      const Overpass::SharedBuffer &buffer)
 	{
 		externalSenderCalled = true;
 
@@ -89,15 +89,56 @@ TEST(Router, FromVirtual)
 		EXPECT_EQ("test-packet", payloadString);
 	};
 
-	auto virtualSender = [&](const Overpass::SharedBuffer &buffer)
+	auto virtualSender = [&](const Overpass::SharedBuffer&)
 	{
 		FAIL() << "Router unexpectedly sent data to the virtual interface";
 	};
 
-	Overpass::Router router(externalSender, virtualSender);
+	Overpass::Router router(externalSender, virtualSender, 1234);
 	router.addKnownClient(overpassAddress, externalAddress);
 
 	router.handlePacketFromVirtual(packet);
 	EXPECT_EQ(true, externalSenderCalled)
 	      << "Expected external sender to be called";
+}
+
+// Test that an exception is raised if a packet from the virtual interface is
+// trying to get to an unknown client.
+TEST(Router, UnknownClient)
+{
+	auto overpassAddress = boost::asio::ip::address::from_string("11.11.11.2");
+	uint16_t destinationPort = 1000;
+	uint16_t sourcePort = 1001;
+
+	Tins::IP packet = Tins::IP(overpassAddress.to_string()) /
+	                  Tins::UDP(destinationPort, sourcePort) /
+	                  Tins::RawPDU("test-packet");
+
+	auto externalSender = [&](const boost::asio::ip::udp::endpoint&,
+	                      const Overpass::SharedBuffer&)
+	{
+		FAIL() << "Router unexpectedly sent data to the external interface";
+	};
+
+	auto virtualSender = [&](const Overpass::SharedBuffer&)
+	{
+		FAIL() << "Router unexpectedly sent data to the virtual interface";
+	};
+
+	Overpass::Router router(externalSender, virtualSender, 1234);
+	try
+	{
+		router.handlePacketFromVirtual(packet);
+		FAIL() << "Expected router to throw exception";
+	}
+	catch (const Overpass::UnknownClientException &exception)
+	{
+		EXPECT_STREQ(exception.what(),
+		             "Overpass error: unable to route packet: no client with "
+		             "address '11.11.11.2'");
+	}
+	catch(...)
+	{
+		FAIL() << "Expected router to throw Overpass::UnknownClientException";
+	}
 }

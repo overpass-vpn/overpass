@@ -3,8 +3,16 @@
 
 #include <string>
 
+#include "types.h"
+
 namespace Overpass
 {
+	class VirtualInterfaceException : public Exception
+	{
+		public:
+			VirtualInterfaceException(const std::string &what);
+	};
+
 	/*!
 	 * \brief Create virtual network interface.
 	 *
@@ -16,9 +24,10 @@ namespace Overpass
 	 * The file descriptor representing the virtual interface. Allows for reading
 	 * and writing raw packets.
 	 *
-	 * \return Whether or not the interface was successfully created.
+	 * \exception VirtualInterfaceException
+	 * If interface can't be created.
 	 */
-	bool createVirtualInterface(std::string &interfaceName,
+	void createVirtualInterface(std::string &interfaceName,
 	                            int &interfaceFileDescriptor);
 
 	/*!
@@ -33,9 +42,10 @@ namespace Overpass
 	 * \param[in] netmask
 	 * Netmask to use for the interface.
 	 *
-	 * \return Whether or not the settings could be applied.
+	 * \exception VirtualInterfaceException
+	 * If settings could not be applied.
 	 */
-	bool assignDeviceAddress(const std::string &interfaceName,
+	void assignDeviceAddress(const std::string &interfaceName,
 	                         const std::string &ipAddress,
 	                         const std::string &netmask);
 }

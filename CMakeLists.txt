@@ -30,6 +30,8 @@ include_directories(
 set(OVERPASS_HEADERS
 	${PROJECT_SOURCE_DIR}/include/datagram_server.h
 	${PROJECT_SOURCE_DIR}/include/internal/datagram_server_private.h
+	${PROJECT_SOURCE_DIR}/include/internal/overpass_server_private.h
+	${PROJECT_SOURCE_DIR}/include/overpass_server.h
 	${PROJECT_SOURCE_DIR}/include/router.h
 	${PROJECT_SOURCE_DIR}/include/stream_server.h
 	${PROJECT_SOURCE_DIR}/include/types.h
@@ -37,6 +39,8 @@ set(OVERPASS_HEADERS
 )
 
 set(OVERPASS_SOURCES
+	${PROJECT_SOURCE_DIR}/src/internal/overpass_server_private.cpp
+	${PROJECT_SOURCE_DIR}/src/overpass_server.cpp
 	${PROJECT_SOURCE_DIR}/src/router.cpp
 	${PROJECT_SOURCE_DIR}/src/version.cpp
 	${PROJECT_SOURCE_DIR}/src/virtual_interface_implementations/linux.cpp
@@ -60,6 +64,7 @@ add_executable(overpassd
 target_link_libraries(overpassd
 	overpass
 	${Boost_LIBRARIES}
+	pthread
 )
 
 set(BUILD_TESTS true CACHE BOOL "Whether or not to build the tests")

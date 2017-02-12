@@ -9,9 +9,22 @@
 
 using namespace Overpass;
 
-Router::Router(ExternalSender externalSender, VirtualSender virtualSender) :
+RoutingException::RoutingException(const std::string &what) :
+   Exception("unable to route packet: " + what)
+{
+}
+
+UnknownClientException::UnknownClientException(
+      const boost::asio::ip::address &address) :
+   RoutingException("no client with address '" + address.to_string() + "'")
+{
+}
+
+Router::Router(ExternalSender externalSender, VirtualSender virtualSender,
+               std::uint16_t overpassPort) :
    m_externalSender(externalSender),
-   m_virtualSender(virtualSender)
+   m_virtualSender(virtualSender),
+   m_overpassPort(overpassPort)
 {
 }
 
@@ -31,11 +44,19 @@ void Router::handlePacketFromVirtual(Tins::IP &packet)
 	// Coming from the virtual interface, the destination will be an IP address
 	// on the Overpass network. We need to look it up in our routing table to
 	// determine where this packet actually needs to go.
-	auto clientAddress = m_knownClients.at(destination);
+	boost::asio::ip::address clientAddress;
+	try
+	{
+		clientAddress = m_knownClients.at(destination);
+	}
+	catch (const std::out_of_range&)
+	{
+		throw UnknownClientException(destination);
+	}
 
 	auto buffer = std::make_shared<Overpass::Buffer>(
 	                 std::move(packet.serialize()));
-	boost::asio::ip::udp::endpoint endpoint(clientAddress, 1234);
+	boost::asio::ip::udp::endpoint endpoint(clientAddress, m_overpassPort);
 	m_externalSender(endpoint, buffer);
 }
 
