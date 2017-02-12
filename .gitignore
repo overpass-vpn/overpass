@@ -1,0 +1,6 @@
+*.swp
+*.user
+*.snap
+parts/
+stage/
+prime/

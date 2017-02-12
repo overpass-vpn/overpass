@@ -1,0 +1,15 @@
+#ifndef VERSION_H
+#define VERSION_H
+
+#include <string>
+
+#define LIBOVERPASS_VERSION_MAJOR @VERSION_MAJOR@
+#define LIBOVERPASS_VERSION_MINOR @VERSION_MINOR@
+#define LIBOVERPASS_VERSION_PATCH @VERSION_PATCH@
+
+namespace Overpass
+{
+	std::string version();
+}
+
+#endif // VERSION_H

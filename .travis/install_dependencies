@@ -1,0 +1,17 @@
+#!/bin/sh
+
+gem install coveralls-lcov
+
+# libtins is only available in yakkety, so we'll build from source.
+# CMake's find_package will find it in the package cache.
+tins_dir=$(mktemp -d)
+cd $tins_dir
+wget https://github.com/mfontanini/libtins/archive/v3.4.tar.gz
+tar xzf *.tar.gz
+cd libtins-*/
+mkdir build
+cd build
+mkdir install
+cmake .. -DLIBTINS_ENABLE_CXX11=1 -DCMAKE_INSTALL_PREFIX=$(pwd)/install
+make -j8
+make install
