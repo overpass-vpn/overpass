@@ -1,5 +1,5 @@
 name: overpass
-version: 0.1.0
+version: 0.1.0snap1
 grade: stable
 confinement: strict
 summary: Overpass VPN
